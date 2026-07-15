@@ -14,7 +14,7 @@ argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用
 - **ロールと人数**（1つ以上必須）: `--implement <n>`（書き込みを伴う実装）/ `--review <n>`（批評）/ `--explore <n>`（読み取り調査）。`<n>` 省略時は 1。各ロールに奏者を人数分立てる。
   - **編成の上限は奏者合計 4**。超過はエラー: 編成の縮小かタスクの分割を提示して中止する。
   - `--implement` と `--review` の同一編成への同時指定はエラー（同一モデルの自己査読になるため。奏者を分けても解消しない）。対処（どちらか単独、またはレビューは配役なしの iterate-review）を提示して中止する。
-- **`--sandbox <mode>`**: codex の sandbox 強度。既定は奏者ごとに決まる: implement を担う奏者は `workspace-write`、review / explore 専任の奏者は `read-only`。明示指定した `<mode>` は全奏者に適用する。`danger-full-access` は明示指定時のみ透過する。承認と sandbox を同時に外す類のフラグ（`--dangerously-bypass-approvals-and-sandbox` 等）は本スキルから指定できない。
+- **`--sandbox <mode>`**: codex の sandbox 強度。既定は全奏者 `workspace-write` とし、プロジェクトへの書き込み可否は**作業ディレクトリ（cwd）で分離する**: implement を担う奏者は cwd＝プロジェクトルート、review / explore 専任の奏者は cwd＝一時領域に mkdir した `<一時領域>/<奏者ラベル>/`。一時領域はセッションのスクラッチパッドディレクトリ（無ければ OS の一時ディレクトリ）を指し、ブリーフ・報告書・奏者の作業ディレクトリはすべてここに置く。workspace-write が書き込みを許すのは cwd と OS の一時領域のみのため、review / explore 奏者からはプロジェクトが sandbox レベルで書き込み不能に保たれる（`read-only` sandbox は報告書の書き出し・herdr への完了通知・MCP ツールの書き込み系呼び出しまで遮断し、奏者が完了報告を返せなくなるため既定にしない）。明示指定した `<mode>` は全奏者に適用する。ただし `read-only` の明示指定は、奏者が報告書・完了通知を返せなくなる旨を伝えて続行可否を確認してから適用する。`danger-full-access` は明示指定時のみ透過する。承認と sandbox を同時に外す類のフラグ（`--dangerously-bypass-approvals-and-sandbox` 等）は本スキルから指定できない。
 - **`--model` / `--effort`**: 指定時のみ codex に透過する。透過形: `--model <model>` → `-m <model>`、`--effort <level>` → `-c model_reasoning_effort=<level>`（既定は `~/.codex/config.toml` に委ねる）。
 - **`--timeout <秒>`**: CLI 輸送路の1実行上限（既定 600）。
 
