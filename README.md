@@ -20,11 +20,12 @@ done
 
 | スキル | 概要 |
 |---|---|
+| concertino-codex | 指定ロール（implement / review / explore）を複数 codex 奏者の編成（合計4まで）に配役するセッションモード（herdr 環境では奏者ごとの TUI ペイン、無ければ headless CLI） |
 | deep-pr-review | GitHub PR の高精度レビュー（多エージェント＋codex＋architect メタ検証を統合レビュー1本に集約） |
 | iterate-review | レビュー→修正→再レビューを GREEN までループする品質ゲート（レビュアーはセッションの配役に従う） |
 | maestro | 高性能モデルを非実装の指揮者に固定し、実装・調査をサブエージェントへ委譲するセッションモード（`--deep` / `--fast` で検収深度を上書き） |
 | memory-dream | Claude Code の全プロジェクト auto-memory を再編・統合する consolidation 手順 |
-| soloist-codex | 指定ロール（implement / review / explore）を codex に配役するセッションモード（herdr 環境では TUI ペイン、無ければ headless CLI） |
+| solista-codex | 編成1の concertino-codex — 指定ロールを単独の codex 奏者に配役するセッションモード |
 
 ## 依存: agent-skills の clarify-ja
 
