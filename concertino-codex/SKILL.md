@@ -1,8 +1,8 @@
 ---
 name: concertino-codex
-description: セッション中の指定ロール（implement / review / explore）を複数 codex 奏者の編成（合計4まで）に配役するセッションモード。herdr 環境では奏者ごとの TUI ペイン、非 herdr 環境では headless CLI で走らせる。
+description: セッション中の指定ロール（implement / review / explore）を複数 codex 奏者の編成（合計4まで）に配役するセッションモード。
 disable-model-invocation: true
-argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用可。implement×review の併用は不可、奏者合計4まで） [--sandbox <mode>] [--model <model>] [--effort <level>] [--timeout <秒>]"
+argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用可。implement×review の併用は不可、奏者合計4まで） [--sandbox <mode>] [--approval <policy>] [--reviewer <裁定者>] [--model <model>] [--effort <level>] [--timeout <秒>]"
 ---
 
 # concertino-codex — 小編成の独奏者群を指揮する
@@ -14,7 +14,13 @@ argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用
 - **ロールと人数**（1つ以上必須）: `--implement <n>`（書き込みを伴う実装）/ `--review <n>`（批評）/ `--explore <n>`（読み取り調査）。`<n>` 省略時は 1。各ロールに奏者を人数分立てる。
   - **編成の上限は奏者合計 4**。超過はエラー: 編成の縮小かタスクの分割を提示して中止する。
   - `--implement` と `--review` の同一編成への同時指定はエラー（同一モデルの自己査読になるため。奏者を分けても解消しない）。対処（どちらか単独、またはレビューは配役なしの iterate-review）を提示して中止する。
-- **`--sandbox <mode>`**: codex の sandbox 強度。既定は全奏者 `workspace-write` とし、プロジェクトへの書き込み可否は**作業ディレクトリ（cwd）で分離する**: implement を担う奏者は cwd＝プロジェクトルート、review / explore 専任の奏者は cwd＝一時領域に mkdir した `<一時領域>/<奏者ラベル>/`。一時領域はセッションのスクラッチパッドディレクトリ（無ければ OS の一時ディレクトリ）を指し、ブリーフ・報告書・奏者の作業ディレクトリはすべてここに置く。workspace-write が書き込みを許すのは cwd と OS の一時領域のみのため、review / explore 奏者からはプロジェクトが sandbox レベルで書き込み不能に保たれる（`read-only` sandbox は報告書の書き出し・herdr への完了通知・MCP ツールの書き込み系呼び出しまで遮断し、奏者が完了報告を返せなくなるため既定にしない）。明示指定した `<mode>` は全奏者に適用する。ただし `read-only` の明示指定は、奏者が報告書・完了通知を返せなくなる旨を伝えて続行可否を確認してから適用する。`danger-full-access` は明示指定時のみ透過する。承認と sandbox を同時に外す類のフラグ（`--dangerously-bypass-approvals-and-sandbox` 等）は本スキルから指定できない。
+- **`--sandbox <mode>`**: codex の sandbox 強度。既定は全奏者 `workspace-write`。**cwd は全奏者ともプロジェクトルート**とする（trust の記録をプロジェクト1エントリに集約する。輸送路ごとの trust の通し方は各起動規定が正本）:
+  - **成果物置き場**: 配役の成果物（ブリーフ・報告書・review / explore の書き出し・非 git 環境のバックアップ）は、すべてプロジェクト直下の `.concertino/<奏者ラベル>/` に置く（本スキル専用の名前空間のため、既存ディレクトリとの衝突は考慮しない）。プロジェクトが git リポジトリで `.concertino/` が ignore されていなければ、最初に作る際に `.git/info/exclude`（ローカル・非コミット）への `.concertino/` 追記を提案する（プロジェクトの `.gitignore` は編集しない）。
+  - **読み取り専用規律**: review / explore 奏者のブリーフには、主文として「成果物は `.concertino/<奏者ラベル>/` にのみ書く。その外への書き込みが必要になったら、書かずに作業を止めて質問せよ」を明記する（implement のパート譜と同じ肯定パターン）。cwd がプロジェクトルートのため workspace-write はプロジェクト本体への書き込みを止めない — 遮断の第一の防御はこの規律である。
+  - **後始末**: TUI ペインのクローズ時に当該奏者の `.concertino/<奏者ラベル>/` を削除し、配役解除時に `.concertino/` をディレクトリごと削除する（無かったものは無い状態に戻す）。非 git 環境のバックアップが残っている場合は、削除前にユーザーへ確認する。
+  - `read-only` sandbox は報告書の書き出し・herdr への完了通知・MCP ツールの書き込み系呼び出しまで遮断し、奏者が完了報告を返せなくなるため既定にしない。明示指定された場合は、その旨を伝えて続行可否を確認してから適用する。
+  - 明示指定した `<mode>` は全奏者に適用する。`danger-full-access` は明示指定時のみ透過する。承認と sandbox を同時に外す類のフラグ（`--dangerously-bypass-approvals-and-sandbox` 等）は本スキルから指定できない。
+- **`--approval <policy>` / `--reviewer <裁定者>`**: codex の承認制御の明示指定（`<policy>`: `untrusted` / `on-request` / `never`、`<裁定者>`: `user` / `auto_review`）。透過形は両輸送路共通で `-c approval_policy=<policy>` / `-c approvals_reviewer=<裁定者>`。省略時の既定は輸送路ごとに定める: TUI は無人運用の成立要件として明示付加する（値と理由は tui-transport.md の起動規定が正本）、CLI は付加せず `~/.codex/config.toml` に委ねる。`--approval never` の明示指定は、承認要求が裁定に乗らなくなり、cwd 外への書き込みや sandbox 昇格が必要な操作が自動拒否される旨を伝えて、続行可否を確認してから適用する（輸送路ごとの詳しい挙動は各起動規定が正本）。
 - **`--model` / `--effort`**: 指定時のみ codex に透過する。透過形: `--model <model>` → `-m <model>`、`--effort <level>` → `-c model_reasoning_effort=<level>`（既定は `~/.codex/config.toml` に委ねる）。
 - **`--timeout <秒>`**: CLI 輸送路の1実行上限（既定 600）。
 
@@ -34,9 +40,9 @@ argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用
 
 ## ロール固有の規律
 
-- **`--implement`** — **パート譜**: 各奏者のブリーフに、排他的な担当ファイル集合（パート譜）を明記する。どのファイルも、それを担当する奏者は常に一人（single-writer の一般形）。複数タスクから触られそうな共有ファイルは、配分の時点で一人のパート譜に寄せる。ブリーフには「パート譜の外への書き込みが必要になったら、書かずに作業を止めて質問せよ」を明記する。質問が来たら指揮者が再配分する: 対象ファイルが他奏者のパート譜に無ければその奏者のパート譜を拡張し、有れば当該作業を先行奏者の完了後へ直列化する。配役中、指揮者自身はファイル内容の変更を 1 行の修正も含め行わない（Write / Edit / NotebookEdit も、Bash 経由の書き込みも使わない）。git 環境ではコミット・stash・ブランチ作成をしない（変更は作業ツリーに累積させ、コミットはユーザーの指示があった場合のみ）。非 git 環境では編集タスクの開始前に対象ファイルを一時領域へバックアップし、そのパスを報告する。
-- **`--review`** — 依頼と応答は**レビュー契約**に従う。正本は本スキルと同じ収録場所の [`../iterate-review/SKILL.md`](../iterate-review/SKILL.md)。依頼を組み立てる前に同ファイルを Read して契約を適用する。見つからない場合はレビューを開始せず、claude-skills リポジトリのリンク復旧（README の展開手順）を案内して中止する。review 奏者が複数のときは、同一対象に**異なる観点を割り当てて**同時に依頼し、指摘は和集合として扱う（重複は指揮者が統合）。合格は**全奏者の GREEN（AND）**。iterate-review のループでは1ラウンドをこの規定で実施する（iterate-review 側の規定は変更しない）。
-- **`--explore`** — 読み取り専用。ブリーフに「このタスクは読み取り専用。編集・書き込みは禁止」を明記する。独立した問いを奏者に分担させる。
+- **`--implement`** — **パート譜**: 各奏者のブリーフに、排他的な担当ファイル集合（パート譜）を明記する。どのファイルも、それを担当する奏者は常に一人（single-writer の一般形）。複数タスクから触られそうな共有ファイルは、配分の時点で一人のパート譜に寄せる。ブリーフには「パート譜の外への書き込みが必要になったら、書かずに作業を止めて質問せよ」を明記する。質問が来たら指揮者が再配分する: 対象ファイルが他奏者のパート譜に無ければその奏者のパート譜を拡張し、有れば当該作業を先行奏者の完了後へ直列化する。配役中、ファイル内容の変更はすべて奏者に委ねる（指揮者は Write / Edit / NotebookEdit も Bash 経由の書き込みも使わず、1 行の修正も自分では行わない）。git 環境ではコミット・stash・ブランチ作成をしない（変更は作業ツリーに累積させ、コミットはユーザーの指示があった場合のみ）。非 git 環境では編集タスクの開始前に対象ファイルを成果物置き場（`.concertino/<奏者ラベル>/`）へバックアップし、そのパスを報告する。
+- **`--review`** — 依頼と応答は**レビュー契約**に従う。正本は本スキルと同じ収録場所の [`../iterate-review/SKILL.md`](../iterate-review/SKILL.md)。依頼を組み立てる前に同ファイルを Read して契約を適用する。見つからない場合はレビューを開始せず、claude-skills リポジトリのリンク復旧（README の展開手順）を案内して中止する。ブリーフには `--sandbox` 規定の読み取り専用規律を明記する。review 奏者が複数のときは、同一対象に**異なる観点を割り当てて**同時に依頼し、指摘は和集合として扱う（重複は指揮者が統合）。合格は**全奏者の GREEN（AND）**。iterate-review のループでは1ラウンドをこの規定で実施する（iterate-review 側の規定は変更しない）。
+- **`--explore`** — 読み取り専用。ブリーフに `--sandbox` 規定の読み取り専用規律を明記する。独立した問いを奏者に分担させる。
 
 ## maestro との併用
 
@@ -44,4 +50,4 @@ maestro 起動中に `--implement` を配役すると、codex の編成が実装
 
 ## 解除
 
-「配役解除」等の明示指示で解除する。解除時、TUI ペインが残っていれば全奏者分について tui-transport.md のクローズ手順を実行してから解除を報告する。完了条件: 配役が解かれた旨と、ペインの後始末の結果を報告した。
+「配役解除」等の明示指示で解除する。解除時、TUI ペインが残っていれば全奏者分について tui-transport.md のクローズ手順を実行し、輸送路を問わず `--sandbox` 規定の後始末（`.concertino`）を完了させてから解除を報告する。完了条件: 配役が解かれた旨と、ペインと `.concertino` の後始末の結果を報告した。

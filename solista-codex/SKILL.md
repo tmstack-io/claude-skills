@@ -2,7 +2,7 @@
 name: solista-codex
 description: セッション中の指定ロール（implement / review / explore）を単独の codex 奏者に配役するセッションモード（編成1の concertino-codex）。
 disable-model-invocation: true
-argument-hint: "--implement|--review|--explore（1つ以上・併用可。implement×review の併用は不可） [--sandbox <mode>] [--model <model>] [--effort <level>] [--timeout <秒>]"
+argument-hint: "--implement|--review|--explore（1つ以上・併用可。implement×review の併用は不可） [--sandbox <mode>] [--approval <policy>] [--reviewer <裁定者>] [--model <model>] [--effort <level>] [--timeout <秒>]"
 ---
 
 # solista-codex — ソリストは同時に一人
