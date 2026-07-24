@@ -1,6 +1,6 @@
 # CLI 輸送路 — headless codex と往復する
 
-非 herdr 環境の輸送路。結果は必ずファイル（`-o`）で受け、文脈の継続は `codex exec resume` で行う。奏者が複数のときは、奏者ごとに独立した `<out>` / `<log>`（パスに奏者ラベルを含める）で以下をそのまま適用し、複数奏者への同時委譲は `run_in_background` の並列起動で行う。
+非 herdr 環境の輸送路。結果は必ずファイル（`-o`）で受け、文脈の継続は `codex exec resume` で行う。奏者が複数のときは、奏者ごとに独立した `<out>` / `<log>`（当該奏者の成果物置き場 `.concertino/<奏者ラベル>/` の配下）で以下をそのまま適用し、複数奏者への同時委譲は `run_in_background` の並列起動で行う。
 
 ## 実行プロトコル
 
@@ -8,21 +8,23 @@ codex の呼び出しは必ず以下の形で行い、Bash の `run_in_backgroun
 
 ```sh
 TIMEOUT=$(command -v gtimeout || command -v timeout) || { echo "timeout 未導入 (macOS は brew install coreutils)"; exit 127; }
-"$TIMEOUT" --kill-after=10s <timeout秒> codex exec --sandbox <mode> <model/effort指定> -o <out> "<ブリーフ絶対パス> を読んで実行せよ" < /dev/null > <log> 2>&1
+"$TIMEOUT" --kill-after=10s <timeout秒> codex exec --sandbox <mode> --skip-git-repo-check -C "<作業ディレクトリ>" <model/effort/承認指定> -o "<out>" "<ブリーフ絶対パス> を読んで実行せよ" < /dev/null > "<log>" 2>&1
 EC=$?
 echo "exit_code=$EC"
-echo "log_stale_seconds=$(( $(date +%s) - $(stat -f %m <log> 2>/dev/null || stat -c %Y <log>) ))"
+echo "log_stale_seconds=$(( $(date +%s) - $(stat -f %m "<log>" 2>/dev/null || stat -c %Y "<log>") ))"
 exit $EC
 ```
 
 - **`--sandbox <mode>`**: SKILL.md の `--sandbox` の既定と指定に従う。
+- **`--skip-git-repo-check`（必須）**: プロジェクトが非 git でも codex の trust チェックで止まらないようにする（headless 実行は trust ダイアログに応答できず、無ければ「Not inside a trusted directory」で即失敗する）。git リポジトリでは無害で、これで config.toml への trust 記録も発生しない。
+- **`-C <作業ディレクトリ>`（必須）**: cwd を SKILL.md の cwd 規定（全奏者ともプロジェクトルート）に固定する（`--skip-git-repo-check` は git 管理外のどこでも起動を許すため、`-C` を明示しないと cwd が Claude のカレントに流れうる）。
+- **`<model/effort/承認指定>`**: `--model` / `--effort` / `--approval` / `--reviewer` の指定時のみ、SKILL.md の透過形で付加する（承認指定の省略時は `~/.codex/config.toml` に委ねる）。
 - **`-o <out>`（必須）**: 最終メッセージをファイルに書き出す。stdout をパイプで受けず、必ずこのファイルを読む（パイプは無出力ハングに見える）。出力ファイルを読まずに検収しない。
-- **進捗ログ `<log>`（必須）**: 実行中の進捗を一時領域へ落とす。末尾の `echo` 2 行は終了直後の exit code と「ログ最終更新からの経過秒数」の記録で、タイムアウトの事後判定の材料になる。
+- **進捗ログ `<log>`（必須）**: 実行中の進捗を成果物置き場へ落とす。末尾の `echo` 2 行は終了直後の exit code と「ログ最終更新からの経過秒数」の記録で、タイムアウトの事後判定の材料になる。
 - **タイムアウト（必須・`<timeout秒>` = `--timeout` の指定値）**: GNU coreutils の `timeout` を使用（macOS は `gtimeout`）。`--kill-after=10s` は SIGTERM で死なない場合の SIGKILL 保険。終了コード `124` = タイムアウト（SIGKILL 保険の発動時は `137`）。
 - **`< /dev/null`**: 非対話実行での stdin 待ち・混入を避ける防御。
 - **待機規律**: コールドスタートで 1〜2 分は正常。指定タイムアウトまでは、ハング即断・ポーリング・自己中断をせず、プロセス終了を待つ（並列中の他奏者の検収は待機中に進めてよい）。
 - ブリーフの書式は TUI 輸送路と同じ。ただし通信規約ブロックは含めず、代わりに「ブリーフに定めた報告フォーマットに従う完了報告と、質問は最終メッセージに書け」を記載する。
-- cwd（`-C`）は SKILL.md の cwd 分離規定に従う（プロジェクトはブリーフ記載の絶対パスで読む）。
 
 完了条件: 委譲した全奏者の `<out>` を読み、それぞれ報告か質問かを分類し終えている。
 
@@ -31,8 +33,10 @@ exit $EC
 質問への回答・追加指示・差し戻しは、新規セッションではなく再開で送る:
 
 ```sh
-codex exec resume <セッションID> --sandbox <mode> -o <out> "<回答または追加指示>"
+codex exec resume <セッションID> --sandbox <mode> --skip-git-repo-check -C "<作業ディレクトリ>" <model/effort/承認指定> -o "<out>" "<回答または追加指示>"
 ```
+
+`<model/effort/承認指定>` は初回実行と同じ内容を再付加する（resume が前セッションの設定を引き継ぐ保証はないため、明示指定は毎回付ける）。
 
 セッション ID は**奏者ごと**に、その奏者の `<log>` から抽出して対応表（奏者ラベル→セッション ID）に保持する（`session_id` / `session id` 行）。抽出できない場合のみ `codex exec resume --last` を使う — ただし編成が奏者1人で、直前の実行がその奏者のものであるとタスクの直列性から言える場合に限る（複数奏者ではセッション ID の明示指定のみを使う）。実行プロトコル（タイムアウト・`-o`・ログ）は初回と同一に適用する。
 
