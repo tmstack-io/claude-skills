@@ -20,13 +20,14 @@ done
 
 | スキル | 概要 |
 |---|---|
-| concertino-codex | 指定ロール（implement / review / explore）を複数 codex 奏者の編成（合計4まで）に配役するセッションモード（herdr 環境では奏者ごとの TUI ペイン、無ければ headless CLI） |
+| concertino | 指定ロール（implement / review / explore）を複数ハーネス奏者の編成（合計4まで）に配役するセッションモード（TUI マルチプレクサ環境専用。奏者ごとにハーネスを指定可、既定 codex） |
 | deep-pr-review | GitHub PR の高精度レビュー（多エージェント＋codex＋architect メタ検証を統合レビュー1本に集約） |
 | iterate-review | レビュー→修正→再レビューを GREEN までループする品質ゲート（レビュアーはセッションの配役に従う） |
 | maestro | 高性能モデルを非実装の指揮者に固定し、実装・調査をサブエージェントへ委譲するセッションモード（`--deep` / `--fast` で検収深度を上書き） |
 | memory-dream | Claude Code の全プロジェクト auto-memory を再編・統合する consolidation 手順 |
-| roundtable | 与えられた合議の主題を異系統の3 LLM（Claude 固定＋起動ごとに選ぶ2席）で合議し、最終回答に統合する円卓会議（TUI マルチプレクサ環境専用〔現行 herdr〕。議事録を `.roundtable/` に永続保存） |
-| solista-codex | 編成1の concertino-codex — 指定ロールを単独の codex 奏者に配役するセッションモード |
+| roundtable | 与えられた合議の主題を異系統の3 LLM（Claude 固定＋起動ごとに選ぶ2席）で合議し、最終回答に統合する円卓会議（TUI マルチプレクサ環境専用。議事録を `.roundtable/` に永続保存） |
+| solista | 編成1の concertino — 指定ロールを単独の奏者に配役するセッションモード（既定 codex） |
+| tui-harness | TUI マルチプレクサのペインで他 LLM ハーネス（codex / cursor-agent / agy / grok）を起動・委譲・回収する基盤（`mux.sh` / `catalog.sh` / ハーネス別 transports。現行バックエンド herdr） |
 
 ## 依存: agent-skills のスキル
 

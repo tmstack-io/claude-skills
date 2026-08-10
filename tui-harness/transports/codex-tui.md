@@ -1,6 +1,6 @@
-# codex TUI 輸送路 — 固有差分
+# codex TUI 起用 — 固有差分
 
-codex の対話ハーネスを賢者ペインで起用するときのハーネス固有差分。共通手順の正本は [../tui-protocol.md](../tui-protocol.md)（ペイン操作は `mux.sh` 経由）。
+codex をペインで起用するときのハーネス固有差分。共通手順の正本は [../SKILL.md](../SKILL.md)（ペイン操作は `mux.sh` 経由）。
 
 ## 起動
 
@@ -12,7 +12,7 @@ codex --sandbox workspace-write -c approval_policy=on-request -c approvals_revie
 
 - **sandbox は `workspace-write`**: read-only は回答ファイルの書き出しと通信規約の push まで遮断するため使わない。書き込みの遮断はブリーフの規律が担う。
 - **`on-request` ＋ `auto_review`**: 承認要求（sandbox 昇格・MCP ツール承認等）を codex のリスク評価サブエージェントに自動裁定させる公式機構で、無人運用の成立要件。`never` は承認要求を裁定に乗せないため使わない。
-- モデルは当該席の `--model` 指定時のみ付加する: `-m <slug>`、effort 付き（`<slug>@<effort>` 解決時）はさらに `-c model_reasoning_effort=<effort>`。省略時は `~/.codex/config.toml` の既定。実測モデル名はペイン下部の表示（例: `gpt-5.6-terra max`）で確認できる。モデル名は TUI 起動時に検証されず、誤指定は最初のターンで API エラーとして顕在化する（`sages.sh models codex` による事前検証が SKILL.md の規定）。
+- 呼び出し側が `--model` を指定した場合のみ付加する: `-m <slug>`、effort 付き（`<slug>@<effort>` 解決時）はさらに `-c model_reasoning_effort=<effort>`。省略時は `~/.codex/config.toml` の既定。実測モデル名はペイン下部の表示（例: `gpt-5.6-terra max`）で確認できる。モデル名は TUI 起動時に検証されず、誤指定は最初のターンで API エラーとして顕在化する（`catalog.sh models codex` による事前検証が呼び出し側の規定）。
 
 ## trust ダイアログ
 
@@ -20,8 +20,8 @@ cwd の trust が `~/.codex/config.toml` に未記録だと、git リポジト�
 
 ## エージェント検知と受理判定
 
-- エージェント名 `codex`。`agent_session`（codex セッション ID）を報告する — 受理完了の判定は tui-protocol 手順2の本則（working ＋ `agent_session`）に従う。**`agent_session` 無しの working 応答は実測で発生する** — その場合は手順3の二分（`mux.sh read` で実作業を確認）で受理を確定する。
-- 完了後に done を報告せず idle に戻るだけのことがある（実測）— pull 安全網は tui-protocol の規定どおり `--until` 無しで張る。
+- エージェント名 `codex`。`agent_session`（codex セッション ID）を報告する — 受理完了の判定は ../SKILL.md の「タスクの委譲」手順2の本則（working ＋ `agent_session`）に従う。**`agent_session` 無しの working 応答は実測で発生する** — その場合は同手順3の二分（`mux.sh read` で実作業を確認）で受理を確定する。
+- 完了後に done を報告せず idle に戻るだけのことがある（実測）— pull 安全網は ../SKILL.md の規定どおり `--until` 無しで張る。
 
 ## 検証記録
 

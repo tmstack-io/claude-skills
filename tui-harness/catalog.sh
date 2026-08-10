@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# roundtable 賢者カタログの正本 — 2席目・3席目候補の疎通確認（probe）と
-# モデル一覧（models）。賢者の実行は TUI 輸送路（tui-protocol.md ＋
-# transports/<CLI名>-tui.md）のみで行い、本スクリプトは実行を担わない。
+# ハーネスカタログの正本 — 候補 CLI の疎通確認（probe）とモデル一覧（models）。
+# ハーネスの実行は TUI ペイン起用（SKILL.md ＋ transports/<CLI名>-tui.md）のみで
+# 行い、本スクリプトは実行を担わない。
 #
 # 使い方:
-#   sages.sh probe
+#   catalog.sh probe
 #       候補 CLI ごとに「名前<TAB>ok|excluded<TAB>詳細」を1行ずつ出力する。
 #       ok の詳細にはモデル一覧等の補足を含める。
-#   sages.sh models <cli>
+#   catalog.sh models <cli>
 #       当該 CLI の指定可能モデルを1行1件で出力する（--model 検証の正本）。
 #       取得できない場合は理由を stderr に出して非0で終了する。
 #
 # 新しい CLI の追加: models_<名前> と probe_<名前> を書いて probe の呼び出し列と
 # models のディスパッチに分岐を足す。起用には対話 TUI の実測検証と
-# transports/<CLI名>-tui.md の作成も必要（SKILL.md の賢者カタログ規定）。
+# transports/<CLI名>-tui.md の作成も必要（SKILL.md のカタログ規定）。
 
 set -u -o pipefail
 
@@ -33,31 +33,41 @@ models_codex() {
 
 models_cursor_agent() {
   command -v cursor-agent >/dev/null 2>&1 || { echo "cursor-agent 未導入" >&2; return 1; }
-  local out
+  local out parsed
   out=$("$TIMEOUT_BIN" 60 cursor-agent --list-models 2>&1) \
     || { echo "疎通失敗: $(printf '%s' "$out" | head -n1)" >&2; return 1; }
   printf '%s' "$out" | grep -q 'No models available' \
     && { echo "認証切れ（cursor-agent login が必要）" >&2; return 1; }
-  printf '%s\n' "$out" | grep -E '^[A-Za-z0-9][A-Za-z0-9._-]* - ' | cut -d' ' -f1
+  parsed=$(printf '%s\n' "$out" | grep -E '^[A-Za-z0-9][A-Za-z0-9._-]* - ' | cut -d' ' -f1)
+  [ -n "$parsed" ] || { echo "モデル一覧の解析に失敗（cursor-agent --list-models の出力形式変更の可能性）" >&2; return 1; }
+  printf '%s\n' "$parsed"
 }
 
 models_agy() {
   command -v agy >/dev/null 2>&1 || { echo "agy 未導入" >&2; return 1; }
-  local out
+  local out parsed
   out=$("$TIMEOUT_BIN" 60 agy models 2>&1)
   if [ $? -ne 0 ] || [ -z "$out" ]; then
     echo "$(printf '%s' "$out" | grep -im1 'error' || echo '疎通失敗')" >&2
     return 1
   fi
-  printf '%s\n' "$out" | grep -E '^[A-Za-z0-9][A-Za-z0-9._-]+$'
+  # 出力は「slug のみ」（旧形式）と「slug<TAB>表示名」（新形式）のいずれもありうる。
+  # タブ区切りの第1フィールドを共通の抽出対象にする（旧形式は行全体がそのまま第1
+  # フィールドになるため同じ規則で通る）。見出し行（"Fetching available models..."
+  # 等）は空白を含み regex にマッチしないため自然に落ちる。
+  parsed=$(printf '%s\n' "$out" | awk -F'\t' '$1 ~ /^[A-Za-z0-9][A-Za-z0-9._-]+$/ {print $1}')
+  [ -n "$parsed" ] || { echo "モデル一覧の解析に失敗（agy models の出力形式変更の可能性）" >&2; return 1; }
+  printf '%s\n' "$parsed"
 }
 
 models_grok() {
   command -v grok >/dev/null 2>&1 || { echo "grok 未導入" >&2; return 1; }
-  local out
+  local out parsed
   out=$("$TIMEOUT_BIN" 60 grok models 2>&1) \
     || { echo "$(printf '%s' "$out" | grep -im1 'error\|log' || echo '疎通失敗')" >&2; return 1; }
-  printf '%s\n' "$out" | grep -E '^\s+\*' | awk '{print $2}'
+  parsed=$(printf '%s\n' "$out" | grep -E '^\s+\*' | awk '{print $2}')
+  [ -n "$parsed" ] || { echo "モデル一覧の解析に失敗（grok models の出力形式変更の可能性）" >&2; return 1; }
+  printf '%s\n' "$parsed"
 }
 
 # --- 疎通確認（probe の1行は models_* の成否と CLI 固有の注記から組み立てる） ---
@@ -116,7 +126,7 @@ case "${1:-}" in
     probe_grok
     ;;
   models)
-    [ $# -eq 2 ] || { echo "usage: sages.sh models <cli>" >&2; exit 2; }
+    [ $# -eq 2 ] || { echo "usage: catalog.sh models <cli>" >&2; exit 2; }
     case "$2" in
       codex)        models_codex ;;
       cursor-agent) models_cursor_agent ;;
@@ -126,7 +136,8 @@ case "${1:-}" in
     esac
     ;;
   *)
-    echo "usage: sages.sh probe | sages.sh models <cli>" >&2
+    echo "usage: catalog.sh probe | catalog.sh models <cli>" >&2
     exit 2
     ;;
 esac
+
