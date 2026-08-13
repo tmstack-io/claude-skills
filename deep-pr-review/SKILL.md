@@ -14,7 +14,7 @@ GitHub の Pull Request を、通常の `/review` 単体より **多角度かつ
 本スキルは **TUI 専用**である — 外部ハーネス（codex / cursor-agent / agy / grok 等）を tui-harness の
 ペインで起用する。実行可否の判定（どの TUI マルチプレクサが検証済みか）は tui-harness の
 `mux.sh detect` に委ね、中止規定の正本はフェーズ0の TUI 専用ゲート。
-前提スキル: tui-harness（同一リポジトリに同梱・必須）/ clarify-ja（agent-skills リポジトリ・必須）。
+前提スキル: tui-harness（同一リポジトリに同梱・必須）/ plainify（agent-skills リポジトリ・必須）。
 PR へのコメント投稿は本スキルの責務外である（同一リポジトリの別スキル pr-comment が担う）。
 
 ---
@@ -53,7 +53,7 @@ PR へのコメント投稿は本スキルの責務外である（同一リポ�
 [フェーズ4] 再ランク（BLOCKER/HIGH/MEDIUM/LOW・全出し・LOW 丸め）
         │
         ▼
-[フェーズ5] ドラフト → /clarify-ja で明快化 → 出力（投稿は別スキル pr-comment）
+[フェーズ5] ドラフト → /plainify で明快化 → 出力（投稿は別スキル pr-comment）
         │
         ▼
 [後始末] ペインクローズ → worktree / 一時 ref の削除 → 残ペイン検証（正常終了・途中中止を問わず必須）
@@ -75,14 +75,14 @@ PR へのコメント投稿は本スキルの責務外である（同一リポ�
    （ペイン配置・起動・委譲・受理判定・pull 安全網・指揮者裁定・未知ダイアログ・クローズ）の正本は
    tui-harness、ハーネス固有差分の正本は `transports/<CLI名>-tui.md` である。
 
-1. **前提スキル clarify-ja の存在チェック**。本スキルはフェーズ5の明快化で
-   agent-skills リポジトリの clarify-ja に依存する。次の順で `clarify-ja/SKILL.md` を探す —
-   (1) 本スキルの隣（`../clarify-ja/SKILL.md`。両リポジトリのスキルを同じディレクトリへ
+1. **前提スキル plainify の存在チェック**。本スキルはフェーズ5の明快化で
+   agent-skills リポジトリの plainify に依存する。次の順で `plainify/SKILL.md` を探す —
+   (1) 本スキルの隣（`../plainify/SKILL.md`。両リポジトリのスキルを同じディレクトリへ
    symlink / コピーしていればここで見つかる）、(2) Claude Code のスキルディレクトリの
-   プロジェクト側 → グローバル側（`.claude/skills/clarify-ja/` → `~/.claude/skills/clarify-ja/`）。
+   プロジェクト側 → グローバル側（`.claude/skills/plainify/` → `~/.claude/skills/plainify/`）。
    どこにも無ければ**レビューを開始せずに中止**し、復旧手順を案内する
-   （agent-skills リポジトリ `tmstack-io/agent-skills` から clarify-ja を導入して再実行。
-   例: `npx skills add tmstack-io/agent-skills --skill clarify-ja`）。
+   （agent-skills リポジトリ `tmstack-io/agent-skills` から plainify を導入して再実行。
+   例: `npx skills add tmstack-io/agent-skills --skill plainify`）。
 
 2. **gh の確認と対象 PR の特定**（上記「入力」参照）。
    最初に `gh` の存在と認証を確認する（`command -v gh` と `gh auth status`）。不可なら処理を
@@ -317,25 +317,25 @@ file:line と出所で行う）。
 
 ---
 
-## フェーズ5: ドラフト → /clarify-ja で明快化 → 出力
+## フェーズ5: ドラフト → /plainify で明快化 → 出力
 
-統合レビュー1本を内部ドラフトとして作り、`/clarify-ja` スキルの整形規則を適用してから最終出力する。
+統合レビュー1本を内部ドラフトとして作り、`/plainify` スキルの整形規則を適用してから最終出力する。
 **本スキルは PR へコメントを投稿しない**（投稿は別スキル pr-comment の責務）。
 
 ### 1. ドラフト作成
 
 フェーズ4の結果を下記「出力フォーマット」へ流し込み、統合レビューのドラフトを作る。この時点では完璧な日本語にこだわらず、各指摘の「**何が・どこで(file:line)・なぜ問題か・どう直すか**」を漏れなく構造化することを優先する。
 
-### 2. /clarify-ja による明快化（日本語の品質担保）
+### 2. /plainify による明快化（日本語の品質担保）
 
-統合レビューのドラフト全体に `/clarify-ja` の整形規則を適用してから最終出力する。
-clarify-ja は本スキルと**同一コンテキストで動く事後リライト規則**であり、別プロセスではない
+統合レビューのドラフト全体に `/plainify` の整形規則を適用してから最終出力する。
+plainify は本スキルと**同一コンテキストで動く事後リライト規則**であり、別プロセスではない
 （Skill ツール等での別呼び出しにはしない）。つまり「渡す」とは、フェーズ0の手順 1 で解決した
-`clarify-ja/SKILL.md` を **Read し**、その規則を**この統合レビューに対する最終整形パスとして
+`plainify/SKILL.md` を **Read し**、その規則を**この統合レビューに対する最終整形パスとして
 同一コンテキストで適用する**ことを指す（意味厳守＝指摘の数・強度・条件・例外・数値・評価語を変えない）。
 
 各指摘の指摘ID・`出所`・`確信度: NN`・重要度見出しとセクション構造は読み手の判断材料であり、
-clarify-ja の既定（構造化された出所・確信度等のラベルは保持する）どおり保持する
+plainify の既定（構造化された出所・確信度等のラベルは保持する）どおり保持する
 （内部タグとみなして削らない）。
 
 ### 3. 出力

@@ -2,7 +2,7 @@
 
 自作 Claude Code **専用**スキルの正本リポジトリ。`~/.claude/skills/` からは各スキルディレクトリへのシンボリックリンクで参照する。
 
-ここに置くスキルは、サブエージェントの並列実行・独立コンテキストの多角性・codex との相互チェックなど、Claude Code での運用構造そのものが品質の源泉であり、意図的に他エージェント向けの汎用化をしない。汎用スキル（clarify-ja ほか）は [agent-skills](https://github.com/tmstack-io/agent-skills) を参照。
+ここに置くスキルは、サブエージェントの並列実行・独立コンテキストの多角性・codex との相互チェックなど、Claude Code での運用構造そのものが品質の源泉であり、意図的に他エージェント向けの汎用化をしない。汎用スキル（plainify ほか）は [agent-skills](https://github.com/tmstack-io/agent-skills) を参照。
 
 ## 使い方（新しいマシンでの展開）
 
@@ -33,7 +33,7 @@ done
 
 ## 依存: agent-skills のスキル
 
-- deep-pr-review は最終出力の明快化に [agent-skills](https://github.com/tmstack-io/agent-skills) の clarify-ja を使う。clarify-ja が見つからない場合、deep-pr-review はレビューを開始せずに中止して復旧手順を案内する。
+- deep-pr-review は最終出力の明快化に [agent-skills](https://github.com/tmstack-io/agent-skills) の plainify を使う。plainify が見つからない場合、deep-pr-review はレビューを開始せずに中止して復旧手順を案内する。
 - pr-comment は投稿文面の公開整形に agent-skills の publish-polish を使う（必須依存）。見つからない場合、pr-comment は投稿を開始せずに中止して復旧手順を案内する。
 - pr-recheck も返信文面の公開整形に publish-polish を使う（必須依存）。見つからない場合、pr-recheck は検証を開始せずに中止して復旧手順を案内する。
 - roundtable は最終提示後の実装プロンプト書き出し（求められた場合のみ）に agent-skills の session-to-prompt を使う。見つからない場合は書き出しのみ中止して復旧手順を案内する（合議自体は完了する）。
@@ -41,7 +41,7 @@ done
 復旧:
 
 ```sh
-npx skills add tmstack-io/agent-skills --skill clarify-ja
+npx skills add tmstack-io/agent-skills --skill plainify
 npx skills add tmstack-io/agent-skills --skill publish-polish
 npx skills add tmstack-io/agent-skills --skill session-to-prompt
 # または agent-skills を clone して ~/.claude/skills/ 配下にシンボリックリンク
