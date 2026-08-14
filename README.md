@@ -20,12 +20,11 @@ done
 
 | スキル | 概要 |
 |---|---|
-| iterate-review | レビュー→修正→再レビューを GREEN までループする品質ゲート（レビュアーはセッションの配役に従う） |
 | memory-dream | Claude Code の全プロジェクト auto-memory を再編・統合する consolidation 手順 |
 
 ## agent-skills への移管
 
-roundtable（2026-08・ADR 0005）、concertino / solista / maestro（2026-08・ADR 0006）、deep-pr-review / pr-comment / pr-recheck（2026-08・ADR 0007）は、実行エージェント非依存の汎用スキル化のうえ [agent-skills](https://github.com/tmstack-io/agent-skills) へ移管した（各 ADR は agent-skills の docs/adr/）。iterate-review は本リポジトリに残り、セッションに review 配役があればそれをレビュアーに使う（配役スキルの所在によらず動作する）。
+roundtable（2026-08・ADR 0005）、concertino / solista / maestro（2026-08・ADR 0006）、deep-pr-review / pr-comment / pr-recheck（2026-08・ADR 0007）、iterate-review（2026-08・ADR 0008。レビュアー既定をハーネスペインへ変更）は、実行エージェント非依存の汎用スキル化のうえ [agent-skills](https://github.com/tmstack-io/agent-skills) へ移管した（各 ADR は agent-skills の docs/adr/）。
 
 ## 編集時の前提
 
