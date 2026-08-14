@@ -20,28 +20,12 @@ done
 
 | スキル | 概要 |
 |---|---|
-| deep-pr-review | GitHub PR の高精度レビュー（多エージェント＋外部ハーネス独立レビュー＋architect メタ検証を統合レビュー1本に集約。TUI マルチプレクサ環境専用・投稿は pr-comment） |
 | iterate-review | レビュー→修正→再レビューを GREEN までループする品質ゲート（レビュアーはセッションの配役に従う） |
 | memory-dream | Claude Code の全プロジェクト auto-memory を再編・統合する consolidation 手順 |
-| pr-comment | 同一セッションの deep-pr-review 統合レビューから、ユーザーが選んだ指摘だけを GitHub PR のレビューコメントとして投稿（publish-polish で公開整形・行アンカー／会話コメント） |
-| pr-recheck | 投稿済みの指摘コメントが PR の新しい head で解消されているかを検証（修正検証）し、選別を経て判定つきの返信を投稿（解消は resolve 併実施。セッションを跨いで動作） |
 
-## 依存: agent-skills のスキル
+## agent-skills への移管
 
-- deep-pr-review は最終出力の明快化に [agent-skills](https://github.com/tmstack-io/agent-skills) の plainify を使う。plainify が見つからない場合、deep-pr-review はレビューを開始せずに中止して復旧手順を案内する。
-- pr-comment は投稿文面の公開整形に agent-skills の publish-polish を使う（必須依存）。見つからない場合、pr-comment は投稿を開始せずに中止して復旧手順を案内する。
-- pr-recheck も返信文面の公開整形に publish-polish を使う（必須依存）。見つからない場合、pr-recheck は検証を開始せずに中止して復旧手順を案内する。
-- deep-pr-review は、ハーネス起用の共通基盤として agent-skills の tui-harness を使う（必須依存。2026-08 に本リポジトリから agent-skills へ移管）。見つからない場合、レビューを開始せずに中止して復旧手順を案内する。
-- roundtable（円卓会議）と concertino / solista / maestro（セッションモード群）は 2026-08 に本リポジトリから agent-skills へ移管した（実行エージェント非依存の汎用スキル化。経緯は agent-skills の ADR 0005 / 0006）。iterate-review は本リポジトリに残り、セッションに review 配役があればそれをレビュアーに使う（配役スキルの所在によらず動作する）。
-
-復旧:
-
-```sh
-npx skills add tmstack-io/agent-skills --skill plainify
-npx skills add tmstack-io/agent-skills --skill publish-polish
-npx skills add tmstack-io/agent-skills --skill tui-harness
-# または agent-skills を clone して ~/.claude/skills/ 配下にシンボリックリンク
-```
+roundtable（2026-08・ADR 0005）、concertino / solista / maestro（2026-08・ADR 0006）、deep-pr-review / pr-comment / pr-recheck（2026-08・ADR 0007）は、実行エージェント非依存の汎用スキル化のうえ [agent-skills](https://github.com/tmstack-io/agent-skills) へ移管した（各 ADR は agent-skills の docs/adr/）。iterate-review は本リポジトリに残り、セッションに review 配役があればそれをレビュアーに使う（配役スキルの所在によらず動作する）。
 
 ## 編集時の前提
 
