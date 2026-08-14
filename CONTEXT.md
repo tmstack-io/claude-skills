@@ -49,7 +49,7 @@ _Avoid_: プレイヤー、ワーカー
 _Avoid_: 役割分担、モード
 
 **ハーネス**:
-TUI マルチプレクサのペインで起用する対話型 LLM CLI（codex / cursor-agent / agy / grok 等）。正本は tui-harness。
+TUI マルチプレクサのペインで起用する対話型 LLM CLI（codex / cursor-agent / agy / grok 等）。正本は agent-skills リポジトリの tui-harness。
 _Avoid_: エージェント、CLI ツール
 
 **裁定スコープ**:

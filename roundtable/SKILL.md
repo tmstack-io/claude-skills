@@ -12,7 +12,7 @@ argument-hint: "[--second <CLI名>] [--third <CLI名>] [--rounds <1〜5>] [--mod
 - **議長** = Claude 本体（このセッション）。**主題に自分では回答しない**。ブリーフの配布・回答の突き合わせ・収束判定・最終統合のみを行う。配布物に議長自身の意見・評価を混ぜない（中立性が本スキルの信頼性の根拠であるため）。議長としての判断が入るのは最終統合の工程だけである。
 - **賢者3席**: 合議においてハーネス（または claude サブエージェント）が担うロール名。固定席は `claude`（セッションモデルを継承するサブエージェント）の1席のみ。**2席目・3席目（席名 `second` / `third`）は起動ごとにハーネスカタログから指定する**。賢者の識別子（議事録のファイル名・push ラベル・ペイン対応表）には席名を使い、席→CLI→実効モデルの対応は議事録 `question.md` の編成表を正本とする。
 - **TUI 専用**: 賢者 CLI（ハーネス）は対話ハーネスを TUI マルチプレクサのペインで起用する（headless 実行はしない — CLI ごとにツール権限・調査能力が歪であり、合議の品質を非対称にするため）。ペイン操作・委譲・裁定の共通手順は tui-harness の正本とする。
-  - **tui-harness 参照**: tui-harness の SKILL.md を Read し、このコンテキスト内で適用する。解決順: `../tui-harness/SKILL.md` → `.claude/skills/tui-harness/SKILL.md` → `~/.claude/skills/tui-harness/SKILL.md`。見つからない場合は合議を開始せず、復旧手順（`git clone git@github.com:tmstack-io/claude-skills.git` した後 `ln -s <リポジトリ>/tui-harness ~/.claude/skills/tui-harness`）を案内して中止する。
+  - **tui-harness 参照**: tui-harness の SKILL.md を Read し、このコンテキスト内で適用する。解決順: `../tui-harness/SKILL.md` → `.claude/skills/tui-harness/SKILL.md` → `~/.claude/skills/tui-harness/SKILL.md`。見つからない場合は合議を開始せず、復旧手順（`npx skills add tmstack-io/agent-skills --skill tui-harness`、または agent-skills リポジトリを clone して `ln -s <リポジトリ>/tui-harness ~/.claude/skills/tui-harness`）を案内して中止する。
   - **呼び出しパラメータ**: 成果物置き場＝議事録ディレクトリ、push ラベル＝席名（`[second]` / `[third]`）、裁定スコープ＝議事録ディレクトリへの書き込み＋通信規約の push（tui-harness の既定どおり）。
 
 ## 入力

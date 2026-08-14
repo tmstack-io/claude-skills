@@ -29,7 +29,6 @@ done
 | pr-recheck | 投稿済みの指摘コメントが PR の新しい head で解消されているかを検証（修正検証）し、選別を経て判定つきの返信を投稿（解消は resolve 併実施。セッションを跨いで動作） |
 | roundtable | 与えられた合議の主題を異系統の3 LLM（Claude 固定＋起動ごとに選ぶ2席）で合議し、最終回答に統合する円卓会議（TUI マルチプレクサ環境専用。議事録を `.roundtable/` に永続保存） |
 | solista | 編成1の concertino — 指定ロールを単独の奏者に配役するセッションモード（既定 codex） |
-| tui-harness | TUI マルチプレクサのペインで他 LLM ハーネス（codex / cursor-agent / agy / grok）を起動・委譲・回収する基盤（`mux.sh` / `catalog.sh` / ハーネス別 transports。現行バックエンド herdr） |
 
 ## 依存: agent-skills のスキル
 
@@ -37,6 +36,7 @@ done
 - pr-comment は投稿文面の公開整形に agent-skills の publish-polish を使う（必須依存）。見つからない場合、pr-comment は投稿を開始せずに中止して復旧手順を案内する。
 - pr-recheck も返信文面の公開整形に publish-polish を使う（必須依存）。見つからない場合、pr-recheck は検証を開始せずに中止して復旧手順を案内する。
 - roundtable は最終提示後の実装プロンプト書き出し（求められた場合のみ）に agent-skills の session-to-prompt を使う。見つからない場合は書き出しのみ中止して復旧手順を案内する（合議自体は完了する）。
+- roundtable / concertino（solista は concertino 経由）/ deep-pr-review は、ハーネス起用の共通基盤として agent-skills の tui-harness を使う（必須依存。2026-08 に本リポジトリから agent-skills へ移管）。見つからない場合、各スキルは開始せずに中止して復旧手順を案内する。
 
 復旧:
 

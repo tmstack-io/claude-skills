@@ -14,7 +14,7 @@ GitHub の Pull Request を、通常の `/review` 単体より **多角度かつ
 本スキルは **TUI 専用**である — 外部ハーネス（codex / cursor-agent / agy / grok 等）を tui-harness の
 ペインで起用する。実行可否の判定（どの TUI マルチプレクサが検証済みか）は tui-harness の
 `mux.sh detect` に委ね、中止規定の正本はフェーズ0の TUI 専用ゲート。
-前提スキル: tui-harness（同一リポジトリに同梱・必須）/ plainify（agent-skills リポジトリ・必須）。
+前提スキル: tui-harness（agent-skills リポジトリ・必須）/ plainify（agent-skills リポジトリ・必須）。
 PR へのコメント投稿は本スキルの責務外である（同一リポジトリの別スキル pr-comment が担う）。
 
 ---
@@ -68,8 +68,8 @@ PR へのコメント投稿は本スキルの責務外である（同一リポ�
 0. **TUI 専用ゲートと前提スキル tui-harness の解決**。`tui-harness/SKILL.md` を手順 1 と同じ探索順で
    解決して Read し、同梱 `mux.sh` の `detect` を実行する。tui-harness が見つからない、または
    検証済みバックエンドが返らない場合は**レビューを開始せずに中止**し、検証済み TUI マルチプレクサ内
-   での再実行または tui-harness の導入（本スキルと同じ配布リポジトリ `tmstack-io/claude-skills` に同梱。
-   例: `npx skills add tmstack-io/claude-skills --skill tui-harness`）を案内する。どのマルチプレクサが
+   での再実行または tui-harness の導入（plainify と同じ agent-skills リポジトリ（`tmstack-io/agent-skills`）で配布。
+   例: `npx skills add tmstack-io/agent-skills --skill tui-harness`）を案内する。どのマルチプレクサが
    検証済みかの正本は tui-harness であり、本スキルは固有名を前提にしない。TUI 外の代替経路は無い。
    フェーズ1-B は本スキルを tui-harness の**利用スキル**として実行するもので、共通手順
    （ペイン配置・起動・委譲・受理判定・pull 安全網・指揮者裁定・未知ダイアログ・クローズ）の正本は

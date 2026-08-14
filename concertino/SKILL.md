@@ -31,7 +31,7 @@ argument-hint: "--implement <n>|--review <n>|--explore <n>（1つ以上・併用
 既存編成がある場合は先に配役解除してから再度呼び出す（編成の追加・変更は本スキルでは扱わない）。
 
 1. **TUI 環境の確認**: tui-harness の `mux.sh detect` が検証済みバックエンドを返さなければ、「対応する TUI マルチプレクサが無い」と案内して配役を開始せず中止する（本スキルは TUI 専用）。
-2. tui-harness の SKILL.md を Read し、このコンテキスト内で適用する。解決順: `../tui-harness/SKILL.md` → `.claude/skills/tui-harness/SKILL.md` → `~/.claude/skills/tui-harness/SKILL.md`。見つからない場合は配役を開始せず、復旧手順（リポジトリの clone / シンボリックリンク）を案内して中止する。呼び出しパラメータ: 成果物置き場＝`.concertino/<奏者ラベル>/`、push ラベル＝`[<奏者ラベル>]`、裁定スコープ＝ implement 奏者はパート譜＋成果物置き場、review / explore 奏者は成果物置き場のみ（いずれも＋通信規約の push）。承認ダイアログは指揮者裁定（tui-harness の「指揮者裁定」節の規定に従う。本 SKILL.md では再掲しない）。
+2. tui-harness の SKILL.md を Read し、このコンテキスト内で適用する。解決順: `../tui-harness/SKILL.md` → `.claude/skills/tui-harness/SKILL.md` → `~/.claude/skills/tui-harness/SKILL.md`。見つからない場合は配役を開始せず、復旧手順（`npx skills add tmstack-io/agent-skills --skill tui-harness`、または agent-skills リポジトリの clone とシンボリックリンク）を案内して中止する。呼び出しパラメータ: 成果物置き場＝`.concertino/<奏者ラベル>/`、push ラベル＝`[<奏者ラベル>]`、裁定スコープ＝ implement 奏者はパート譜＋成果物置き場、review / explore 奏者は成果物置き場のみ（いずれも＋通信規約の push）。承認ダイアログは指揮者裁定（tui-harness の「指揮者裁定」節の規定に従う。本 SKILL.md では再掲しない）。
 3. 各奏者のハーネスを確定する（`--harness` 指定があればそれ、無ければ codex）。tui-harness の `catalog.sh probe` でハーネスごとの疎通を確認し、excluded な奏者があれば**代行せず**、除外理由と復旧手順（導入・再ログイン等）を提示して指示を待つ（勝手に別の CLI へ差し替えない）。
 4. `--model` 指定があればモデル検証（「パラメータ」節）を行う。
 5. ユーザーへ宣言する: 編成（奏者ラベル→ロール→ハーネス→モデルの対応）・解除方法（「配役解除」等の明示指示があるまでセッション全体に適用されること）。
