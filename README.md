@@ -20,7 +20,11 @@ done
 
 | スキル | 概要 |
 |---|---|
-| memory-dream | Claude Code の全プロジェクト auto-memory を再編・統合する consolidation 手順 |
+| memory-dream | Claude Code の全プロジェクト auto-memory を横断整理する手動専用の consolidation 手順。ネイティブ auto-dream が扱わない範囲（全プロジェクト横断・実行前バックアップ＋採用前レビュー・上位レイヤとの重複排除・実リポジトリ突合・グローバル昇格候補の報告）を担う |
+
+### memory-dream の実施タイミング
+
+ネイティブ auto-dream が日常の consolidation を担うため、次の場面で手動起動する: 大規模リファクタ直後（実リポジトリとの突合が効く場面。最優先）／上位レイヤ（CLAUDE.md・rules）を大きく書き換えた後（下位再掲の一掃が効く場面）／触らなくなった古いプロジェクトが溜まったとき（ネイティブが発火しない領域の棚卸し）。設計（4 フェーズ consolidation・レビュー後採用）の出典は [Dreams — Claude API Docs](https://platform.claude.com/docs/en/managed-agents/dreams)。
 
 ## agent-skills への移管
 
